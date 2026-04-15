@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>狗狗年齡計算機｜專案最終版</title>
+    <style>
+        :root {
+            --bg: #f7f1ea;
+            --bg-2: #fffaf6;
+            --card: rgba(255, 252, 248, 0.92);
+            --card-strong: #ffffff;
+            --text: #5d4738;
+            --muted: #8a7261;
+            --accent: #8c6a54;
+            --accent-dark: #6f5341;
+            --accent-soft: #f1e4d7;
+            --line: rgba(138, 114, 97, 0.18);
+            --danger: #b5453d;
+            --ok: #6c8b5f;
+            --shadow: 0 18px 45px rgba(84, 58, 35, 0.12);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-pill: 999px;
+            --transition: 0.22s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.7), transparent 25%),
+                linear-gradient(180deg, var(--bg-2), var(--bg));
+        }
+
+        .page {
+            min-height: 100vh;
+            padding: 28px 18px 40px;
+        }
+
+        .shell {
+            width: min(960px, 100%);
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            padding: 26px 24px;
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: var(--accent-soft);
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.55rem, 3.2vw, 2.2rem);
+            line-height: 1.2;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.02fr 0.98fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            padding: 22px;
+        }
+
+        .panel-title {
+            margin: 0 0 16px;
+            font-size: 1.15rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 700;
+            font-size: 0.94rem;
+        }
+
+        .input,
+        .select,
+        .button {
+            font: inherit;
+        }
+
+        .input,
+        .select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--text);
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+        }
+
+        .input:focus,
+        .select:focus {
+            border-color: rgba(140, 106, 84, 0.48);
+            box-shadow: 0 0 0 4px rgba(140, 106, 84, 0.12);
+        }
+
+        .helper {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .button {
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 12px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition), background var(--transition);
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button.primary {
+            flex: 1;
+            background: linear-gradient(135deg, var(--accent), #a47c61);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(140, 106, 84, 0.22);
+        }
+
+        .button.secondary {
+            background: rgba(140, 106, 84, 0.1);
+            color: var(--accent-dark);
+            min-width: 96px;
+        }
+
+        .error {
+            min-height: 1.4em;
+            margin-top: 10px;
+            color: var(--danger);
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+        .status {
+            min-height: 1.4em;
+            margin-top: 4px;
+            color: var(--ok);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .result-hero {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(249, 241, 233, 0.92));
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .result-hero p {
+            margin: 0;
+            line-height: 1.85;
+            font-size: 1rem;
+        }
+
+        .result-hero strong {
+            color: var(--accent-dark);
+            font-size: 1.08em;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .chip {
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid var(--line);
+            font-size: 0.9rem;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .metric {
+            background: var(--card-strong);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 15px;
+        }
+
+        .metric span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.84rem;
+            margin-bottom: 6px;
+        }
+
+        .metric strong {
+            font-size: 1.03rem;
+            line-height: 1.5;
+        }
+
+        .footnote {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--line);
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.7;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.84rem;
+            padding-top: 6px;
+        }
+
+        .fade-up {
+            animation: fadeUp 0.45s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 860px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page {
+                padding: 16px 12px 28px;
+            }
+
+            .hero,
+            .panel {
+                padding: 18px;
+            }
+
+            .row-2,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .button.secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <div class="shell">
+            <section class="hero fade-up">
+                <div class="hero-top">
+                    <div class="icon">🐶</div>
+                    <h1>狗狗年齡計算機</h1>
+                </div>
+                <p>輸入狗狗的出生年月日，即可計算目前狗齡、換算後的人類年齡，並在重新整理頁面後保留上次運算結果。</p>
+            </section>
+
+            <section class="layout">
+                <section class="panel fade-up" aria-labelledby="form-title">
+                    <h2 class="panel-title" id="form-title">輸入資料</h2>
+
+                    <form id="dogForm" novalidate>
+                        <div class="form-grid">
+                            <div>
+                                <label for="name">狗狗名字</label>
+                                <input class="input" id="name" type="text" value="妙麗" placeholder="例如：妙麗" />
+                            </div>
+
+                            <div>
+                                <label for="date">出生日期</label>
+                                <input class="input" id="date" type="date" value="2023-02-28" />
+                                <div class="helper">請輸入狗狗的實際出生年月日。</div>
+                            </div>
+
+                            <div class="row-2">
+                                <div>
+                                    <label for="size">狗狗體型</label>
+                                    <select class="select" id="size">
+                                        <option value="small">小型犬</option>
+                                        <option value="medium" selected>中型犬</option>
+                                        <option value="large">大型犬</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="mode">換算模式</label>
+                                    <select class="select" id="mode">
+                                        <option value="general" selected>一般模式</option>
+                                        <option value="research">研究模式</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="button-row">
+                                <button class="button primary" type="submit">開始計算</button>
+                                <button class="button secondary" type="button" id="resetBtn">重設</button>
+                            </div>
+                        </div>
+                        <div class="error" id="error"></div>
+                        <div class="status" id="status"></div>
+                    </form>
+                </section>
+
+                <section class="panel fade-up" aria-labelledby="result-title">
+                    <h2 class="panel-title" id="result-title">運算結果</h2>
+
+                    <div class="result-hero" id="resultHero">
+                        <p>妙麗現在約 <strong>3.0 歲</strong>，換算成人類年齡約 <strong>24.9 歲</strong>。</p>
+                    </div>
+
+                    <div class="chips" id="chips">
+                        <div class="chip">成犬期</div>
+                        <div class="chip">中型犬</div>
+                        <div class="chip">一般模式</div>
+                    </div>
+
+                    <div class="result-grid" id="resultGrid">
+                        <div class="metric">
+                            <span>狗狗年齡</span>
+                            <strong id="dogAgeText">3 歲 0 個月</strong>
+                        </div>
+                        <div class="metric">
+                            <span>人類年齡</span>
+                            <strong id="humanAgeText">24.9 歲</strong>
+                        </div>
+                        <div class="metric">
+                            <span>生命階段</span>
+                            <strong id="stageText">成犬期</strong>
+                        </div>
+                        <div class="metric">
+                            <span>換算模式</span>
+                            <strong id="modeText">一般模式</strong>
+                        </div>
+                        <div class="metric">
+                            <span>計算基準日</span>
+                            <strong id="todayText">—</strong>
+                        </div>
+                        <div class="metric">
+                            <span>結果保存</span>
+                            <strong id="storageText">已啟用 localStorage</strong>
+                        </div>
+                    </div>
+
+                    <div class="footnote">
+                        一般模式：採常見教育用途分段概念，第一年約等於人類 15 歲、第二年再增加約 9 歲，其後依體型每年增加約 4–6 歲。<br />
+                        研究模式：採常見整理公式 <code>human age = 16 × ln(dog age) + 31</code>。<br />
+                        本工具為教育與展示用途，不等同臨床診斷。
+                    </div>
+                </section>
+            </section>
+
+            <div class="footer">單檔版 HTML，可直接部署至 GitHub Pages 或貼到 CodePen。</div>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const LS_KEY = 'dogAgeProjectFinal_v1';
+
+            const nameInput = document.getElementById('name');
+            const dateInput = document.getElementById('date');
+            const sizeInput = document.getElementById('size');
+            const modeInput = document.getElementById('mode');
+            const form = document.getElementById('dogForm');
+            const resetBtn = document.getElementById('resetBtn');
+
+            const errorEl = document.getElementById('error');
+            const statusEl = document.getElementById('status');
+            const resultHero = document.getElementById('resultHero');
+            const chips = document.getElementById('chips');
+            const dogAgeText = document.getElementById('dogAgeText');
+            const humanAgeText = document.getElementById('humanAgeText');
+            const stageText = document.getElementById('stageText');
+            const modeText = document.getElementById('modeText');
+            const todayText = document.getElementById('todayText');
+            const storageText = document.getElementById('storageText');
+
+            const sizeLabelMap = {
+                small: '小型犬',
+                medium: '中型犬',
+                large: '大型犬'
+            };
+
+            const modeLabelMap = {
+                general: '一般模式',
+                research: '研究模式'
+            };
+
+            function saveState(data) {
+                localStorage.setItem(LS_KEY, JSON.stringify(data));
+            }
+
+            function loadState() {
+                try {
+                    return JSON.parse(localStorage.getItem(LS_KEY));
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            function clearState() {
+                localStorage.removeItem(LS_KEY);
+            }
+
+            function formatDate(date) {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}/${m}/${d}`;
+            }
+
+            function parseDate(value) {
+                if (!value) return null;
+                const [y, m, d] = value.split('-').map(Number);
+                const date = new Date(y, m - 1, d);
+                if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
+                    return null;
+                }
+                return date;
+            }
+
+            function calculateDogAge(birthDate, today) {
+                let totalMonths =
+                    (today.getFullYear() - birthDate.getFullYear()) * 12 +
+                    (today.getMonth() - birthDate.getMonth());
+
+                if (today.getDate() < birthDate.getDate()) {
+                    totalMonths -= 1;
+                }
+
+                totalMonths = Math.max(totalMonths, 0);
+
+                return {
+                    years: Math.floor(totalMonths / 12),
+                    months: totalMonths % 12,
+                    totalYears: totalMonths / 12
+                };
+            }
+
+            function formatDogAge(years, months) {
+                const parts = [];
+                if (years > 0) parts.push(`${years} 歲`);
+                if (months > 0) parts.push(`${months} 個月`);
+                return parts.length ? parts.join(' ') : '未滿 1 個月';
+            }
+
+            function calculateGeneralHumanAge(totalYears, size) {
+                const laterRate = {
+                    small: 4,
+                    medium: 5,
+                    large: 6
+                }[size];
+
+                if (totalYears <= 1) return totalYears * 15;
+                if (totalYears <= 2) return 15 + (totalYears - 1) * 9;
+                return 24 + (totalYears - 2) * laterRate;
+            }
+
+            function calculateResearchHumanAge(totalYears) {
+                return 16 * Math.log(totalYears) + 31;
+            }
+
+            function getLifeStage(totalYears, size) {
+                if (totalYears < 1) return '幼犬期';
+                if (totalYears < 3) return '青年期';
+
+                const seniorThreshold = { small: 10, medium: 8, large: 7 };
+                const geriatricThreshold = { small: 12, medium: 10, large: 9 };
+
+                if (totalYears >= geriatricThreshold[size]) return '高齡期';
+                if (totalYears >= seniorThreshold[size]) return '熟齡期';
+                return '成犬期';
+            }
+
+            function renderChips(stage, size, mode) {
+                chips.innerHTML = `
+          <div class="chip">${stage}</div>
+          <div class="chip">${sizeLabelMap[size]}</div>
+          <div class="chip">${modeLabelMap[mode]}</div>
+        `;
+            }
+
+            function renderResult(data, showRestoreMessage) {
+                resultHero.innerHTML = `<p>${data.name} 現在約 <strong>${data.totalYears.toFixed(1)} 歲</strong>，換算成人類年齡約 <strong>${data.humanAge.toFixed(1)} 歲</strong>。</p>`;
+                dogAgeText.textContent = data.dogAgeLabel;
+                humanAgeText.textContent = `${data.humanAge.toFixed(1)} 歲`;
+                stageText.textContent = data.stage;
+                modeText.textContent = modeLabelMap[data.mode];
+                todayText.textContent = data.today;
+                storageText.textContent = showRestoreMessage ? '已從上次結果還原' : '已儲存至 localStorage';
+                renderChips(data.stage, data.size, data.mode);
+            }
+
+            function calculateAndRender() {
+                const name = nameInput.value.trim() || '狗狗';
+                const birthDate = parseDate(dateInput.value);
+                const size = sizeInput.value;
+                const mode = modeInput.value;
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                errorEl.textContent = '';
+                statusEl.textContent = '';
+
+                if (!birthDate) {
+                    errorEl.textContent = '請輸入有效的出生日期。';
+                    return;
+                }
+
+                if (birthDate > today) {
+                    errorEl.textContent = '出生日期不能晚於今天。';
+                    return;
+                }
+
+                const age = calculateDogAge(birthDate, today);
+
+                if (age.totalYears <= 0) {
+                    errorEl.textContent = '目前年齡過小，請確認日期是否正確。';
+                    return;
+                }
+
+                const humanAge = mode === 'general'
+                    ? calculateGeneralHumanAge(age.totalYears, size)
+                    : calculateResearchHumanAge(age.totalYears);
+
+                const stage = getLifeStage(age.totalYears, size);
+                const resultData = {
+                    name,
+                    birthDate: dateInput.value,
+                    size,
+                    mode,
+                    totalYears: age.totalYears,
+                    humanAge,
+                    stage,
+                    dogAgeLabel: formatDogAge(age.years, age.months),
+                    today: formatDate(today)
+                };
+
+                renderResult(resultData, false);
+                saveState(resultData);
+                statusEl.textContent = '已完成計算，並保存目前結果。';
+            }
+
+            function restoreLastState() {
+                const saved = loadState();
+                if (!saved) {
+                    const now = new Date();
+                    todayText.textContent = formatDate(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+                    storageText.textContent = '尚無已保存結果';
+                    return;
+                }
+
+                nameInput.value = saved.name || '妙麗';
+                dateInput.value = saved.birthDate || '2023-02-28';
+                sizeInput.value = saved.size || 'medium';
+                modeInput.value = saved.mode || 'general';
+                renderResult(saved, true);
+                statusEl.textContent = '已自動載入上次運算結果。';
+            }
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                calculateAndRender();
+            });
+
+            resetBtn.addEventListener('click', function () {
+                nameInput.value = '妙麗';
+                dateInput.value = '2023-02-28';
+                sizeInput.value = 'medium';
+                modeInput.value = 'general';
+                clearState();
+                errorEl.textContent = '';
+                statusEl.textContent = '已重設欄位並清除保存結果。';
+                calculateAndRender();
+            });
+
+            restoreLastState();
+        })();
+    </script>
+</body>
+
+</html>
